@@ -54,7 +54,6 @@ if __name__ == '__main__':
     os.environ['OMP_NUM_THREADS'] = str(args.cpu)
     os.environ['MKL_NUM_THREADS'] = str(args.cpu)
     torch.set_num_threads(args.cpu)
-    parallel = len(args.cuda.split(',')) > 1
     
     exp_conf = get_exp_conf()
     task = exp_conf['task']
@@ -69,10 +68,10 @@ if __name__ == '__main__':
             writer = SummaryWriter(log_dir)
         else:
             writer = None
-        trainer = Trainer(exp_conf, parallel, writer)
+        trainer = Trainer(exp_conf, writer)
         trainer.train()
     
     if task == 'test':
-        tester = Tester(exp_conf, parallel)
+        tester = Tester(exp_conf)
         tester.test()
         

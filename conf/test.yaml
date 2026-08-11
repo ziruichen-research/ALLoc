@@ -35,7 +35,7 @@ iclloc:
 batch_size: 1
 len_nei_test: 64
 noise_dev: 0
-loc_error_scale: 0
+loc_error_scale: 1
 
 init_loc_dir: ~
 model:

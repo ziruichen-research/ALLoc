@@ -8,12 +8,11 @@ from calflops import calculate_flops
 from model import *
 
 class BaseTrainer:
-    def __init__(self, exp_conf, parallel):
+    def __init__(self, exp_conf):
         self.exp_conf = exp_conf
         self.exp_dir = self.exp_conf['exp_dir']
         self.task = self.exp_conf['task']
         self.scheme = self.exp_conf['scheme']
-        self.parallel = parallel
         self.use_seq_dataset_test = (self.task == 'train')
         self.iterative = (self.task == 'test' and self.scheme in ['alloc', 'iclloc'] and self.exp_conf['init_loc_dir'] is not None)
         self.init_model()
@@ -31,8 +30,6 @@ class BaseTrainer:
         }[self.scheme]
         
         model = eval(model_name + '(self.exp_conf)')
-        if self.parallel:
-            model = nn.DataParallel(model)
         self.model = model.cuda()
 
         if self.scheme in ['ad_cnn', 'ad_cnn_multitask']:

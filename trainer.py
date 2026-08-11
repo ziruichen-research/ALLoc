@@ -9,8 +9,8 @@ from base_trainer import BaseTrainer
 from dataset import Dataset
 
 class Trainer(BaseTrainer):
-    def __init__(self, exp_conf, parallel, writer):
-        super().__init__(exp_conf, parallel)
+    def __init__(self, exp_conf, writer):
+        super().__init__(exp_conf)
         self.writer = writer
         
         data_dirs = self.exp_conf['data_dirs']
@@ -153,8 +153,8 @@ class Trainer(BaseTrainer):
                 self.save_checkpoint()
             if self.epoch % test_epoch_inter == 0:
                 self.model.eval()
+                metric = []
                 for k, loader in enumerate(self.test_loaders):
-                    metric = []
                     for data, loc, init_loc in tqdm(loader, desc=f'[Test] epoch {self.epoch}/{num_epochs}, scenario {k + 1}/{num_scenarios}'):
                         data = data.cuda()
                         loc = loc.cuda()
@@ -162,18 +162,18 @@ class Trainer(BaseTrainer):
                         with torch.no_grad():
                             rmse = self.forward(k, data, loc, init_loc)
                         metric.append(rmse.cpu().numpy())
-                    metric = np.concatenate(metric, axis=0)
-                    if self.writer is not None:
-                        self.writer.add_scalars(f'Test/rmse', {str(k): np.mean(metric)}, global_step=self.epoch)
-                        self.writer.flush()
+                metric = np.concatenate(metric, axis=0)
+                if self.writer is not None:
+                    self.writer.add_scalar(f'Test/rmse', np.mean(metric), global_step=self.epoch)
+                    self.writer.flush()
             if self.global_step >= num_max_steps:
                 break
         pth_path = os.path.join(self.exp_dir, 'model.pth')
         torch.save(self.model.state_dict(), pth_path)
 
 class Tester(BaseTrainer):
-    def __init__(self, exp_conf, parallel):
-        super().__init__(exp_conf, parallel)
+    def __init__(self, exp_conf):
+        super().__init__(exp_conf)
         batch_size = self.exp_conf['batch_size']
         data_dirs = self.exp_conf['data_dirs']
         if self.scheme in ['alloc', 'iclloc']:

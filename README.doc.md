@@ -41,7 +41,10 @@ For ALLoc/ICLLoc applying neighborhood sampling, this parameter determines how t
 
 Default: None.
 
-In our experiments, *radius* is always set as None (default value).
+In our experiments, *radius* is set as follows:
+
+- DICHASUS-ca0x: 1.
+- Others: None (default value).
 
 ### inv_std : *float*
 
@@ -49,8 +52,10 @@ Multiplicative factor of CSI data before feeding into LNNs. Default: 10000.
 
 In our experiments, *inv_std* is set as follows:
 
-- O1, O1B, MO1: 10000 (default value).
-- RO1, O2: 100000.
+- DeepMIMO O1, O1B, MO1: 10000 (default value).
+- DeepMIMO RO1, O2: 100000.
+- DICHASUS-ca0x: 0.1.
+- Sionna RT: 10000 (default value).
 
 ### num_train_data : *int*
 
@@ -59,6 +64,8 @@ Number of training data for each scenario. Default: 40000.
 ### num_test_data : *int*
 
 Number of testing data for each scenario. Default: 20000.
+
+In our experiments, ca02 serves as an additional testing trajectory for DICHASUS-ca0x, which has 10000 testing data.
 
 ## Training-specific parameters
 
@@ -180,7 +187,7 @@ The intensity of noise disturbance, representing the deviation between the noisy
 
 ### loc_error_scale : *float*
 
-For ALLoc/ICLLoc applying neighborhood sampling, this parameter determines the accuracy of initial locations. By default, the ground truth locations are used as initial locations. Ignored if *init_loc_dir* is not None. Default: 0.
+For ALLoc/ICLLoc applying neighborhood sampling, this parameter determines the accuracy of initial locations. Ignored if *init_loc_dir* is not None. Default: 1.
 
 ### init_loc_dir : *str or None*
 
@@ -353,13 +360,13 @@ python main.py --conf=./conf/test.yaml --mod exp_dir=./exp/o1_40k/alloc_neighbor
     scheme=alloc select=neighbor num_train_data=40000 noise_dev=0.1
 ```
 
-Test the trained ALLoc in O1 scenario with inaccurate initial locations. The scale of initial location error is 1m.
+Test the trained ALLoc in O1 scenario with inaccurate initial locations. The scale of initial location error is 4m.
 
 ```shell
-python main.py --conf=./conf/test.yaml --mod exp_dir=./exp/o1_40k/alloc_neighbor/test_loc_error/loc_error_scale=1/ \
+python main.py --conf=./conf/test.yaml --mod exp_dir=./exp/o1_40k/alloc_neighbor/test_loc_error/loc_error_scale=4/ \
     model.exp_dir=./exp/o1_40k/alloc_neighbor/ \
     data_dirs=[./dataset_deepmimo/o1/] \
-    scheme=alloc select=neighbor num_train_data=40000 loc_error_scale=1
+    scheme=alloc select=neighbor num_train_data=40000 loc_error_scale=4
 ```
 
 ### Iterative search
